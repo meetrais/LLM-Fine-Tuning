@@ -2,6 +2,7 @@ import os
 import torch
 import torch.nn as nn
 import bitsandbytes as bnb
+import transformers  as transformers
 from transformers import AutoTokenizer, AutoConfig, AutoModelForCausalLM
 from transformers import BitsAndBytesConfig
 from peft import LoraConfig, get_peft_model 
@@ -83,3 +84,41 @@ config  = LoraConfig(
 
 model = get_peft_model(model, config)
 print_trainable_parameters(model)
+data = load_dataset("Abirate/english_quotes")
+
+def merge_colunms(example):
+    example['prediction'] = example['quote'] + " ->: " + str(example["tags"])
+    return example
+
+data['train'] = data['train'].map(merge_colunms)
+print(data['train']["prediction"][:5])
+print(data['train'][0])
+
+data = data.map(lambda samples: tokenizer(samples['prediction']), batched=True)
+
+print(data)
+
+#Training
+trainer =  transformers.Trainer(
+    model=model,
+    train_dataset=data['train'],
+    args=transformers.TrainingArguments(
+        per_gpu_train_batch_size=4,
+        gradient_accumulation_steps=4,
+        warmup_steps=100,
+        max_steps=200,
+        learning_rate=2e-4,
+        fp16=True,
+        logging_steps=1,
+        output_dir='outputs'
+    ),
+    data_collator=transformers.DataCollatorForLanguageModeling(tokenizer, mlm=False)
+)
+
+model.config.use_cache = False
+trainer.train()
+
+model.push_to_hub("meetrais/bloom-7b1-lora-tagger",
+                  token="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",
+                  commit_message="basic training",
+                  private=True)
