@@ -10,46 +10,11 @@ from datasets import load_dataset
 
 
 #Setup the model
-model_id="bigscience/bloom-1b7"
+model_id="meta-llama/Llama-2-7b-hf"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(model_id, device_map="auto", load_in_8bit=True)
 
 print(model.get_memory_footprint())
-
-'''
-Change the compute dtype
-The compute dtype is used to change the dtype that will be used during computation. 
-For example, hidden states could be in float32 but computation can be set to bf16 for speedups. By default, the compute dtype is set to float32.
-
-quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dtype=torch.bfloat16)
-
-'''
-
-'''
-Using NF4 (Normal Float 4) data type
-You can also use the NF4 data type, which is a new 4bit datatype adapted for weights that have been initialized using a normal distribution. For that run:
-
-nf4_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_quant_type="nf4",
-)
-
-model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=nf4_config)
-'''
-
-'''
-Use nested quantization for more memory efficient inference
-We also advise users to use the nested quantization technique. This saves more memory at no additional performance - from our empirical observations, 
-this enables fine-tuning llama-13b model on an NVIDIA-T4 16GB with a sequence length of 1024, batch size of 1 and gradient accumulation steps of 4.
-
-double_quant_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_use_double_quant=True,
-)
-
-model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=double_quant_config)
-'''
-
 #Freezing the original weights
 for param in model.parameters():
     param.requires_grad = False
@@ -118,7 +83,7 @@ trainer =  transformers.Trainer(
 model.config.use_cache = False
 trainer.train()
 
-model.push_to_hub("meetrais/bloom-7b1-lora-tagger",
+model.push_to_hub("meetrais/meta-Llama-2-7b-hf-finetuned",
                   token="HuggingFace-app-key",
                   commit_message="basic training",
                   private=True)
