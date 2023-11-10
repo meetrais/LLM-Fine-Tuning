@@ -27,7 +27,7 @@ model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=bnb_c
 
 outputs = model.generate(**inputs, max_new_tokens=20)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
-
+"""
 #Freezing the original weights
 for param in model.parameters():
     param.requires_grad = False
@@ -63,13 +63,13 @@ config  = LoraConfig(
 model = get_peft_model(model, config)
 print_trainable_parameters(model)
 dataset_name = "gathnex/Gath_baize"
-dataset = load_dataset(dataset_name, split="train[:100]")
+dataset = load_dataset(dataset_name, split="train[:1000]")
 dataset["chat_sample"][0]
-"""
+
 def merge_colunms(example):
     example['prediction'] = example['quote'] + " ->: " + str(example["tags"])
     return example
-"""
+
 
 #data['train'] = data['train'].map(merge_colunms)
 #print(data['train'][0])
@@ -110,4 +110,18 @@ trainer = SFTTrainer(
 
 model.config.use_cache = False
 trainer.train()
+"""
+config  = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    lora_dropout=0.05,
+    bias = 'none',
+    task_type="CAUSAL_LM"
+)
+model = get_peft_model(model, config)
+model.push_to_hub("meetrais/finetuned_mistral_7b",
+                  token="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",
+                  commit_message="basic training",
+                  private=True)
+
 
