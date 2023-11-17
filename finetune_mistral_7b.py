@@ -120,7 +120,7 @@ config  = LoraConfig(
 )
 model = get_peft_model(model, config)
 model.push_to_hub("meetrais/finetuned_mistral_7b",
-                  token="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",
+                  token="Your-Hugging-Face-Token-Here",
                   commit_message="basic training",
                   private=True)
 
