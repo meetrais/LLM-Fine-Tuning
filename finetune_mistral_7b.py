@@ -20,13 +20,12 @@ bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_use_double_quant=True,
     bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.bfloat16
+    bnb_4bit_compute_dtype=torch.bfloat16,
+    load_in_8bit=False
 )
 
 model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=bnb_config)
 
-outputs = model.generate(**inputs, max_new_tokens=20)
-print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 """
 #Freezing the original weights
 for param in model.parameters():
@@ -119,9 +118,14 @@ config  = LoraConfig(
     task_type="CAUSAL_LM"
 )
 model = get_peft_model(model, config)
+
+outputs = model.generate(**inputs, max_new_tokens=30)
+print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+
+"""
 model.push_to_hub("meetrais/finetuned_mistral_7b",
                   token="Your-Hugging-Face-Token-Here",
                   commit_message="basic training",
                   private=True)
 
-
+"""
