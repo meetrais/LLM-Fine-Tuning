@@ -37,11 +37,10 @@ model = get_peft_model(model, config)
 outputs = model.generate(**inputs, max_new_tokens=30)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 
-"""
-model.push_to_hub("meetrais/finetuned_mistral_7b",
+model.push_to_hub("meetrais/finetuned-neural-chat-7b-v3-1",
                   token="Your-Hugging-Face-Token-Here",
                   commit_message="basic training",
                   private=True)
-"""
+
 
 
