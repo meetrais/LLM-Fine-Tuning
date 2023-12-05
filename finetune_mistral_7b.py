@@ -110,15 +110,18 @@ trainer = SFTTrainer(
 model.config.use_cache = False
 trainer.train()
 """
+#print(model)
+
 config  = LoraConfig(
     r=16,
     lora_alpha=32,
     lora_dropout=0.05,
     bias = 'none',
-    task_type="CAUSAL_LM"
+    task_type="CAUSAL_LM",
+    target_modules=["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj","lm_head"]
 )
-model = get_peft_model(model, config)
 
+model = get_peft_model(model, config)
 outputs = model.generate(**inputs, max_new_tokens=30)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 

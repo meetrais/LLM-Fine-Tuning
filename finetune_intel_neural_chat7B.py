@@ -20,7 +20,8 @@ bnb_config = BitsAndBytesConfig(
     load_in_4bit=True,
     bnb_4bit_use_double_quant=True,
     bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.bfloat16
+    bnb_4bit_compute_dtype=torch.bfloat16,
+    
 )
 
 model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=bnb_config)
@@ -30,17 +31,20 @@ config  = LoraConfig(
     lora_alpha=32,
     lora_dropout=0.05,
     bias = 'none',
-    task_type="CAUSAL_LM"
+    task_type="CAUSAL_LM",
+    target_modules=["q_proj","k_proj","v_proj","o_proj","gate_proj","up_proj","down_proj","lm_head"]
 )
-model = get_peft_model(model, config)
 
+#print(model)
+
+model = get_peft_model(model, config)
 outputs = model.generate(**inputs, max_new_tokens=30)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
-
+"""
 model.push_to_hub("meetrais/finetuned-neural-chat-7b-v3-1",
                   token="Your-Hugging-Face-Token-Here",
                   commit_message="basic training",
                   private=True)
-
+"""
 
 
