@@ -43,10 +43,10 @@ model = get_peft_model(model, config)
 outputs = model.generate(**inputs, max_new_tokens=30)
 print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 
-"""
-model.push_to_hub("meetrais/finetuned_Meta-Llama-3-8B-Instruct",
-                  token="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",
+
+model.push_to_hub("meetrais/Meta-Llama-3-8B-Instruct-NIM-LORA",
+                  token="HF-Access-Key",
                   commit_message="basic training",
                   private=True)
-"""
+
 
